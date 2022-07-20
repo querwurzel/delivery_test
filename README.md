@@ -10,9 +10,9 @@
 
 ### Runtime
 
-Application can be found under: `http://localhost:8080`
+Application can be found under: [localhost:8080](http://localhost:8080)
 
-Find the user API under: `http://localhost:8080/api/users/{userId}`
+OpenApi Documentation can be found under: [localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 ### Reference Documentation
 

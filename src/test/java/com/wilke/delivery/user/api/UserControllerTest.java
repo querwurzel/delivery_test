@@ -1,6 +1,7 @@
 package com.wilke.delivery.user.api;
 
 import com.wilke.delivery.user.UserFixtures;
+import com.wilke.delivery.user.api.exception.ServiceUnavailableException;
 import com.wilke.delivery.user.api.exception.UserNotFoundException;
 import com.wilke.delivery.user.api.model.UserDetails;
 import com.wilke.delivery.user.application.UserService;
@@ -35,7 +36,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserDetails_shouldReturn_NotFound_whenUserNotFound() {
+    void getUserDetails_shouldReturn_404_whenUserNotFound() {
         this.givenNoUserDetails();
 
         webTestClient
@@ -43,6 +44,17 @@ class UserControllerTest {
                 .uri(UserController.PATH + "/{userId}", 4711)
                 .exchange()
                 .expectStatus().isNotFound();
+    }
+
+    @Test
+    void getUserDetails_shouldReturn_503_whenExternalServiceFails() {
+        this.givenServiceFailure();
+
+        webTestClient
+                .get()
+                .uri(UserController.PATH + "/{userId}", 4711)
+                .exchange()
+                .expectStatus().is5xxServerError();
     }
 
     private UserDetails givenUserDetails(long userId) {
@@ -57,6 +69,10 @@ class UserControllerTest {
 
     private void givenNoUserDetails() {
         Mockito.doReturn(Mono.error(new UserNotFoundException())).when(userService).fetchUserDetails(Mockito.any(Long.class));
+    }
+
+    private void givenServiceFailure() {
+        Mockito.doReturn(Mono.error(new ServiceUnavailableException())).when(userService).fetchUserDetails(Mockito.any(Long.class));
     }
 
 }
