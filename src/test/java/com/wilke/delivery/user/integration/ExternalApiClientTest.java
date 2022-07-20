@@ -66,7 +66,7 @@ class ExternalApiClientTest {
 
         final List<Post> posts = externalApiClient.fetchPosts(givenUserId).block();
 
-        assertThat(posts).hasSize(givenPosts.size());
+        assertThat(posts).isEqualTo(givenPosts);
     }
 
     @Test
