@@ -7,6 +7,7 @@ import com.wilke.delivery.user.integration.model.Post;
 import com.wilke.delivery.user.integration.model.User;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,12 +42,14 @@ class ExternalApiClientTest {
     }
 
     @Test
-    void fetchUser_shouldReturn_user_correspondingToUserId() throws JsonProcessingException {
+    void fetchUser_shouldReturn_user_correspondingToUserId() throws JsonProcessingException, InterruptedException {
         long givenUserId = 4711;
         User givenUser = givenValidUserResponse(givenUserId);
 
         final User user = externalApiClient.fetchUser(givenUserId).block();
 
+        final RecordedRequest req = mockWebServer.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath()).isEqualTo(ExternalApiClient.USERS + "/" + givenUserId);
         assertThat(user).isEqualTo(givenUser);
     }
 
@@ -60,12 +63,15 @@ class ExternalApiClientTest {
     }
 
     @Test
-    void fetchPosts_shouldReturn_posts_correspondingToUserId() throws JsonProcessingException {
-        long givenUserId = 4711;
+    void fetchPosts_shouldReturn_posts_correspondingToUserId() throws JsonProcessingException, InterruptedException {
+        Long givenUserId = 4711L;
         List<Post> givenPosts = givenPostsForUser(givenUserId);
 
         final List<Post> posts = externalApiClient.fetchPosts(givenUserId).block();
 
+        final RecordedRequest req = mockWebServer.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath()).isEqualTo(ExternalApiClient.POSTS);
+        assertThat(req.getRequestUrl().queryParameter("userId")).isEqualTo(givenUserId.toString());
         assertThat(posts).isEqualTo(givenPosts);
     }
 
@@ -81,7 +87,6 @@ class ExternalApiClientTest {
     private User givenValidUserResponse(long userId) throws JsonProcessingException {
         User user = UserFixtures.givenUser(userId);
 
-        // TODO NOOOOOT happy without precise url :(, improve test specificity
         mockWebServer.enqueue(
                 new MockResponse()
                         .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -101,7 +106,6 @@ class ExternalApiClientTest {
     private List<Post> givenPostsForUser(long userId) throws JsonProcessingException {
         List<Post> posts = UserFixtures.givenPosts(userId);
 
-        // TODO NOOOOOT happy without precise url :(, improve test specificity
         mockWebServer.enqueue(
                 new MockResponse()
                         .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
