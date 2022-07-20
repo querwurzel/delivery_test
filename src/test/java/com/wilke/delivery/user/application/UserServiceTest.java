@@ -99,7 +99,7 @@ class UserServiceTest {
     void givenServiceFails() {
         WebClientResponseException error = WebClientResponseException.create(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 new HttpHeaders(),
                 new byte[0],
                 Charset.defaultCharset()
