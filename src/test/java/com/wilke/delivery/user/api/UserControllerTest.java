@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -54,7 +55,7 @@ class UserControllerTest {
                 .get()
                 .uri(UserController.PATH + "/{userId}", 4711)
                 .exchange()
-                .expectStatus().is5xxServerError();
+                .expectStatus().isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     private UserDetails givenUserDetails(long userId) {
